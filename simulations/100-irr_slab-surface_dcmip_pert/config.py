@@ -1,4 +1,4 @@
-# dcmip_no_perturbation_less_irradiance_slab_surface simulation config file
+# 100-irr_slab-surface_dcmip_pert simulation config file
 
 from modules.baseconfig import *
 
@@ -18,6 +18,6 @@ FIELDS_TO_STORE = ('atmosphere_hybrid_sigma_pressure_a_coordinate_on_interface_l
 
 
 def set_initial_state(state):
-    clm.set_constants_from_dict({'stellar_irradiance': {'value': 200, 'units': 'W m^-2'}})
-    dcmip = clm.DcmipInitialConditions(add_perturbation=False)
+    clm.set_constants_from_dict({'stellar_irradiance': {'value': 100, 'units': 'W m^-2'}})
+    dcmip = clm.DcmipInitialConditions(add_perturbation=True)
     state.update(dcmip(state))

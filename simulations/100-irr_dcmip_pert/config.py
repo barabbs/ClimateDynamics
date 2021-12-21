@@ -1,4 +1,4 @@
-# dcmip_no_perturbation_less_irradiance simulation config file
+# 100-irr_dcmip_pert simulation config file
 
 from modules.baseconfig import *
 
@@ -8,7 +8,6 @@ COMPONENTS = {'convection': clm.EmanuelConvection(),
 
 GRID = {'nx': 62, 'ny': 62, 'nz': 10}
 
-
 FIELDS_TO_STORE = ('atmosphere_hybrid_sigma_pressure_a_coordinate_on_interface_levels', 'atmosphere_hybrid_sigma_pressure_b_coordinate_on_interface_levels', 'surface_air_pressure', 'air_pressure',
                    'air_pressure_on_interface_levels', 'longitude', 'latitude', 'height_on_ice_interface_levels', 'air_temperature', 'eastward_wind', 'northward_wind', 'divergence_of_wind',
                    'atmosphere_relative_vorticity', 'surface_geopotential', 'specific_humidity', 'cloud_base_mass_flux', 'surface_temperature', 'surface_specific_humidity',
@@ -16,6 +15,6 @@ FIELDS_TO_STORE = ('atmosphere_hybrid_sigma_pressure_a_coordinate_on_interface_l
 
 
 def set_initial_state(state):
-    clm.set_constants_from_dict({'stellar_irradiance': {'value': 200, 'units': 'W m^-2'}})
-    dcmip = clm.DcmipInitialConditions(add_perturbation=False)
+    clm.set_constants_from_dict({'stellar_irradiance': {'value': 100, 'units': 'W m^-2'}})
+    dcmip = clm.DcmipInitialConditions(add_perturbation=True)
     state.update(dcmip(state))

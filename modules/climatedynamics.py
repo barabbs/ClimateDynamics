@@ -25,7 +25,7 @@ class ClimateDynamics(object):
         self.name, self.overwrite = name, overwrite
         self.filepath = os.path.join(var.SIMULATIONS_DIR, name)
 
-        config = importlib.import_module(f"data.simulations.{self.name}.config")
+        config = importlib.import_module(f"simulations.{self.name}.config")
         self.components = {name: comp for name, comp in config.COMPONENTS.items()}
         self.dycore = clm.GFSDynamicalCore(self.components.values(), number_of_damped_levels=5)
         self.grid = clm.get_grid(**config.GRID)
