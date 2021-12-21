@@ -70,7 +70,7 @@ class ClimateDynamics(object):
                 self._state_update()
                 np.seterr(all='warn')
             except FloatingPointError:
-                log.error(f"FloatingPointError encountered, exiting model...")
+                log.error(f"FloatingPointError encountered at cycle {i}, exiting model...")
                 self._plot_function()
                 self._save_to_monitors()
                 break

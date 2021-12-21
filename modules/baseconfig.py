@@ -12,7 +12,7 @@ GRID = dict()
 TIME_STEP = timedelta(minutes=10)
 STEPS = 24 * 6 * 365
 PLOTTING_STEPS = 24 * 6
-SAVING_STEPS = 24 * 6
+SAVING_STEPS = 6
 
 FIGURES = {'vertical': ((9, 5), plot.get_plot_vertical_profile((2, 2)), {'var_names': {'eastward_wind': {'cm': 'PiYG', 'title': 'eastward wind', 'transpose': True},
                                                                                        'specific_humidity': {'cm': 'Blues', 'title': 'specific humidity', 'transpose': True},
