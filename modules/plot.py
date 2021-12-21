@@ -8,15 +8,18 @@ import numpy as np
 mpl.rcParams['axes.formatter.limits'] = (2, -2)
 
 
-def plot_vertical_profile(fig, state, name, var_names):
+def _plot_vertical_profile(size, fig, state, name, var_names):
     """Plots all zonal winds for different rotation rates"""
     fig.clf()
     fig.text(0.02, 0.92, name)
     fig.text(0.82, 0.92, state['time'].strftime(var.DATETIME_FORMAT))
     for i, v in enumerate(var_names):
-        ax = fig.add_subplot(1, 3, i + 1)
+        ax = fig.add_subplot(*size, i + 1)
         state[v].coords['lat'] = state['latitude'][:, 0]
-        state[v].mean(dim='lon').plot.contourf(ax=ax, cmap=var_names[v]['cm'], levels=100)  # , robust=True)
+        if var_names[v]['transpose']:
+            state[v].mean(dim='lon').plot.contourf(ax=ax, cmap=var_names[v]['cm'], levels=100)
+        else:
+            state[v].transpose().mean(dim='lon').plot.contourf(ax=ax, cmap=var_names[v]['cm'], levels=100)
         ax.set_title(var_names[v]['title'])
     fig.tight_layout()
     fig.subplots_adjust(top=0.8)
@@ -24,13 +27,13 @@ def plot_vertical_profile(fig, state, name, var_names):
     fig.show()
 
 
-def plot_sfc_map(fig, state, name, var_names):
+def _plot_sfc_map(size, fig, state, name, var_names):
     """Plots all zonal winds for different rotation rates"""
     fig.clf()
     fig.text(0.02, 0.96, name)
     fig.text(0.82, 0.96, state['time'].strftime(var.DATETIME_FORMAT))
     for i, v in enumerate(var_names):
-        ax = fig.add_subplot(2, 2, i + 1, projection=ccrs.PlateCarree())
+        ax = fig.add_subplot(*size, i + 1, projection=ccrs.PlateCarree())
         state[v].coords['lat'] = state['latitude'][:, 0]
         state[v].coords['lon'] = state['longitude'][0]
         if 'surface' in v:
@@ -54,3 +57,16 @@ def plot_sfc_map(fig, state, name, var_names):
     fig.subplots_adjust(top=0.9)
     fig.suptitle('Surface Map', fontsize=16)
 
+
+def get_plot_vertical_profile(size):
+    def plot_vertical_profile(*args, **kwargs):
+        _plot_vertical_profile(size, *args, **kwargs)
+
+    return plot_vertical_profile
+
+
+def get_plot_sfc_map(size):
+    def plot_sfc_map(*args, **kwargs):
+        _plot_sfc_map(size, *args, **kwargs)
+
+    return plot_sfc_map

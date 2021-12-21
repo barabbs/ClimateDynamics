@@ -9,22 +9,21 @@ COMPONENTS = dict()
 
 GRID = dict()
 
-TIME_STEP = timedelta(hours=1)
-STEPS = 24
+TIME_STEP = timedelta(minutes=10)
+STEPS = 24 * 6 * 365
+PLOTTING_STEPS = 24 * 6
+SAVING_STEPS = 24 * 6
 
-FIGURES = {'vertical': ((10, 3), plot.plot_vertical_profile, {'var_names': {'eastward_wind': {'cm': 'PiYG', 'title': 'eastward wind'},
-                                                                            'air_temperature': {'cm': 'coolwarm', 'title': 'air temperature'},
-                                                                            'atmosphere_relative_vorticity': {'cm': 'PuOr_r', 'title': 'atm. rel. vorticity'}}}),
-           'map': ((9, 5), plot.plot_sfc_map, {'var_names': {'eastward_wind': {'cm': 'PiYG', 'title': 'eastward wind'},
-                                                             'air_temperature': {'cm': 'coolwarm', 'title': 'air temperature'},
-                                                             'divergence_of_wind': {'cm': 'PiYG', 'title': 'divergence of wind'},
-                                                             'surface_geopotential': {'cm': 'YlOrBr_r', 'title': 'surface geopotential'}}})}
+FIGURES = {'vertical': ((9, 5), plot.get_plot_vertical_profile((2, 2)), {'var_names': {'eastward_wind': {'cm': 'PiYG', 'title': 'eastward wind', 'transpose': True},
+                                                                                       'specific_humidity': {'cm': 'Blues', 'title': 'specific humidity', 'transpose': True},
+                                                                                       'air_temperature': {'cm': 'coolwarm', 'title': 'air temperature', 'transpose': True},
+                                                                                       'atmosphere_relative_vorticity': {'cm': 'PuOr_r', 'title': 'atm. rel. vorticity', 'transpose': True}}}),
+           'map': ((9, 5), plot.get_plot_sfc_map((2, 2)), {'var_names': {'eastward_wind': {'cm': 'PiYG', 'title': 'eastward wind'},
+                                                                         'air_temperature': {'cm': 'coolwarm', 'title': 'air temperature'},
+                                                                         'divergence_of_wind': {'cm': 'PiYG', 'title': 'divergence of wind'},
+                                                                         'surface_geopotential': {'cm': 'YlOrBr_r', 'title': 'surface geopotential'}}})}
 
 FIELDS_TO_STORE = None
-
-
-# ['air_temperature', 'air_pressure', 'atmosphere_relative_vorticity', 'divergence_of_wind', 'eastward_wind', 'northward_wind', 'air_pressure_on_interface_levels',
-#                    'specific_humidity', 'surface_air_pressure', 'surface_geopotential', 'surface_temperature', 'latitude', 'longitude', ]
 
 
 def set_initial_state(state):

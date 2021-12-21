@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import sympl as sym
 import climt as clm
 import logging, os, importlib, shutil
-from datetime import timedelta
+import numpy as np
 
 log = logging.getLogger(__name__)
 
@@ -20,9 +20,9 @@ def copy_state(state):
 
 
 class ClimateDynamics(object):
-    def __init__(self, name="EMPTY"):
-        log.info("Loading model...")
-        self.name = name
+    def __init__(self, name, overwrite=False):
+        log.info(f"Loading model {name}...")
+        self.name, self.overwrite = name, overwrite
         self.filepath = os.path.join(var.SIMULATIONS_DIR, name)
 
         config = importlib.import_module(f"data.simulations.{self.name}.config")
@@ -31,11 +31,11 @@ class ClimateDynamics(object):
         self.grid = clm.get_grid(**config.GRID)
         self.state = clm.get_default_state([self.dycore, ], grid_state=self.grid)
         config.set_initial_state(self.state)
-        self.time_step, self.steps = config.TIME_STEP, config.STEPS
+        self.time_step, self.steps, self.saving_steps, self.plotting_steps = config.TIME_STEP, config.STEPS, config.SAVING_STEPS, config.PLOTTING_STEPS
         self.figures = {k: (plt.figure(figsize=i[0], dpi=300),) + i[1:] for k, i in config.FIGURES.items()}
         self._make_dirs()
-        self.monitors = (sym.NetCDFMonitor(os.path.join(self.filepath, f"{name}-store.nc"), write_on_store=True, store_names=config.FIELDS_TO_STORE),
-                         sym.RestartMonitor(os.path.join(self.filepath, f"{name}-restart.nc")))
+        self.monitors = (sym.NetCDFMonitor(os.path.join(self.filepath, f"{self.name}-store.nc"), write_on_store=True, store_names=config.FIELDS_TO_STORE),
+                         sym.RestartMonitor(os.path.join(self.filepath, f"{self.name}-restart.nc")))
 
     def _make_dirs(self):
         for dir_name in var.SIMULATION_SUBDIRS:
@@ -43,8 +43,13 @@ class ClimateDynamics(object):
             try:
                 os.mkdir(path)
             except FileExistsError:
-                if input(f"Directory {dir_name} already exists, overwrite? (y/n)  ").lower() == 'y':
+                if self.overwrite or input(f"Directory {dir_name} already exists, overwrite? (y/n)  ").lower() == 'y':
                     shutil.rmtree(path)
+                    try:
+                        os.remove(os.path.join(self.filepath, f"{self.name}-store.nc"))
+                        os.remove(os.path.join(self.filepath, f"{self.name}-restart.nc"))
+                    except FileNotFoundError:
+                        pass
                     os.mkdir(path)
                 else:
                     log.info("Directory not overwritten, exiting.")
@@ -53,31 +58,37 @@ class ClimateDynamics(object):
             path = os.path.join(self.filepath, 'graphics', graph)
             os.mkdir(path)
 
-    def _state_update(self, time_step):
-        diag, self.state = self.dycore(self.state, time_step)
+    def _state_update(self):
+        diag, self.state = self.dycore(self.state, self.time_step)
         self.state.update(diag)
-        self.state['time'] += self.time_step
-        # self.monitor.store(self.state)
 
     def run(self):
-        log.info("Simulation Started...")
+        log.info(f"Simulation {self.name} started...")
         for i in range(self.steps):
-            if i % (24 * 3) == 0:
-                log.info(f"\t- reached cycle {i}")
+            try:
+                np.seterr(all='raise')
+                self._state_update()
+                np.seterr(all='warn')
+            except FloatingPointError:
+                log.error(f"FloatingPointError encountered, exiting model...")
                 self._plot_function()
-                if i > 0:
-                    self._save_to_monitors()
-            self._state_update(self.time_step)
-        log.info("Simulation Ended")
+                self._save_to_monitors()
+                break
+            if i % (self.plotting_steps) == 0:
+                log.info(f"\t reached cycle {i}\t  -  day {i // self.saving_steps}")
+                self._plot_function()
+            if i % (self.saving_steps) == 0:
+                self._save_to_monitors()
+            self.state['time'] += self.time_step
+        log.info(f"Simulation {self.name} ended")
+        del self.dycore
 
     def _save_to_monitors(self):
-        # for comp, unit in var.COMPONENTS_TO_SANIFY.items():
-        #     print(f"--- {comp}")
-        #     print(self.state[comp].attrs['units'])
-        #     self.state[comp] = self.state[comp].to_units(unit)
-        #     print(self.state[comp].attrs['units'])
+        state = copy_state(self.state)
+        for k in var.COMPONENTS_TO_SANIFY:
+            state.pop(k, None)
         for m in self.monitors:
-            m.store(self.state)
+            m.store(state)
 
     def _plot_function(self):
         for name, f in self.figures.items():
