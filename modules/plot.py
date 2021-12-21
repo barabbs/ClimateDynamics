@@ -54,11 +54,3 @@ def plot_sfc_map(fig, state, name, var_names):
     fig.subplots_adjust(top=0.9)
     fig.suptitle('Surface Map', fontsize=16)
 
-
-FIGURES = {'vertical': ((10, 3), plot_vertical_profile, {'var_names': {'eastward_wind': {'cm': 'PiYG', 'title': 'eastward wind'},
-                                                                       'air_temperature': {'cm': 'coolwarm', 'title': 'air temperature'},
-                                                                       'atmosphere_relative_vorticity': {'cm': 'PuOr_r', 'title': 'atm. rel. vorticity'}}}),
-           'map': ((9, 5), plot_sfc_map, {'var_names': {'eastward_wind': {'cm': 'PiYG', 'title': 'eastward wind'},
-                                                        'air_temperature': {'cm': 'coolwarm', 'title': 'air temperature'},
-                                                        'divergence_of_wind': {'cm': 'PiYG', 'title': 'divergence of wind'},
-                                                        'surface_geopotential': {'cm': 'YlOrBr_r', 'title': 'surface geopotential'}}})}

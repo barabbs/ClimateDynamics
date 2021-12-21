@@ -8,7 +8,11 @@ from modules.climatedynamics import ClimateDynamics
 
 
 def main():
-    cd = ClimateDynamics()
+    # cd = ClimateDynamics('empty')
+    # cd.run()
+    cd = ClimateDynamics('dcmip_perturbation')
+    cd.run()
+    cd = ClimateDynamics('dcmip_no_perturbation')
     cd.run()
 
 
