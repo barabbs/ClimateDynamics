@@ -75,7 +75,7 @@ class ClimateDynamics(object):
                 self._save_to_monitors()
                 break
             if i % (self.plotting_steps) == 0:
-                log.info(f"\t reached cycle {i}\t  -  day {i // self.saving_steps}")
+                log.info(f"\t reached cycle {i}\t  -  day {i // self.plotting_steps}")
                 self._plot_function()
             if i % (self.saving_steps) == 0:
                 self._save_to_monitors()
